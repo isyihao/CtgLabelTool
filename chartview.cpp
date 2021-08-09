@@ -39,6 +39,31 @@
     m_chart = chart;
 }
 
+ QPoint ChartView::chartPos2ViewPos(QPoint chartPos)
+ {
+     // 获取chart的x轴、y轴
+     QAbstractAxis *axisx = m_chart->axes(Qt::Horizontal).first();
+     QValueAxis *haxis = 0;
+     if (axisx->type() == QAbstractAxis::AxisTypeValue)
+         haxis = qobject_cast<QValueAxis *>(axisx);
+
+     QAbstractAxis *axisy = m_chart->axes(Qt::Vertical).first();
+     QValueAxis *vaxis = 0;
+     if (axisy->type() == QAbstractAxis::AxisTypeValue)
+         vaxis = qobject_cast<QValueAxis *>(axisy);
+     if (haxis && vaxis){
+         // 计算两轴单位长度
+         double xUnit = m_chart->plotArea().width() / haxis->max();
+         double yUnit = m_chart->plotArea().height() / (vaxis->max()-vaxis->min());
+         // 将chart的轴坐标位置转化为视图的空间位置
+         int x = chartPos.x() * xUnit +m_chart->plotArea().x();
+         int y = this->height()-m_chart->plotArea().y() - (chartPos.y() - 60 ) * yUnit;
+         return QPoint(x,y);
+     }
+     return QPoint(0,0);
+
+ }
+
 void  ChartView::mousePressEvent(QMouseEvent *event)
 {
     // 记录当前鼠标点击位置（该位置是ChartView的空间位置，锚点为左上角）
@@ -58,7 +83,7 @@ void  ChartView::mousePressEvent(QMouseEvent *event)
         // 计算两轴单位长度
         double xUnit = m_chart->plotArea().width() / haxis->max();
         double yUnit = m_chart->plotArea().height() / (vaxis->max()-vaxis->min());
-        // 将鼠标点击的空间位置转化为chart的轴坐标位置，chart的轴坐标锚点为图的（0,0）点
+        // 将鼠标点击的空间位置转化为chart的轴坐标位置
         int x = (event->pos().x()-m_chart->plotArea().x()) / xUnit;
         int y = (this->height()-m_chart->plotArea().y()-event->pos().y())/yUnit + 60;
         qDebug()<<"x "<<x << " y"<<y;

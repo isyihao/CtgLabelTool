@@ -44,6 +44,13 @@ public:
      Chart *m_chart;
      QPoint m_mousePos;
 
+     /**
+      * @brief 将图标轴的点位置转换为图标视图的位置
+      * @param chartPos
+      * @return
+      */
+     QPoint chartPos2ViewPos(QPoint chartPos);
+
 protected:
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);

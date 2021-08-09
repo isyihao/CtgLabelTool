@@ -227,26 +227,37 @@ void MainWindow::initCTGView(){
     widget->setStyleSheet("background-color:white;padding:0;margin:0");
     widget->setLayout(vboxLayout);
 
-    //    for(int i=1;i<result.length/240/2;i++){
-    //        for(int j=0;j<4;j++){
-    //            QGraphicsTextItem *testText = new QGraphicsTextItem(chart);
-    //            testText->setPlainText(tr("120"));
-    //            QFont textFont;
-    //            textFont.setBold(true);
-    //            textFont.setFamily("Microsoft YaHei");
-    //            testText->setFont(textFont);
-    //            testText->setDefaultTextColor("#265580");
-    //            int chartX = i*240;
-    //            int chartY = 90+j*30;
-    //            int labelX = chartX * xUnit + chart->plotArea().x();
-    //            int labelY =  chartView->height()- chartY * yUnit - chart->plotArea().y();
-
-    //            testText->setPos(QPointF(labelX,labelY));
-    //        }
-    //    }
-
     ui->scrollArea->setWidget(widget);
     ui->scrollArea->setWidgetResizable(true);
+
+    QAbstractAxis *axisx = fhrChart->axes(Qt::Horizontal).first();
+    QValueAxis *haxis = 0;
+    if (axisx->type() == QAbstractAxis::AxisTypeValue)
+        haxis = qobject_cast<QValueAxis *>(axisx);
+
+    QAbstractAxis *axisy = fhrChart->axes(Qt::Vertical).first();
+    QValueAxis *vaxis = 0;
+    if (axisy->type() == QAbstractAxis::AxisTypeValue)
+        vaxis = qobject_cast<QValueAxis *>(axisy);
+
+    double xUnit = fhrChart->plotArea().width() / haxis->max();
+    double yUnit = fhrChart->plotArea().height() / (vaxis->max()-vaxis->min());
+
+    for(int i=240;i<data.length;i+=720){
+        for(int j=0;j<4;j++){
+            QGraphicsTextItem *testText = new QGraphicsTextItem(fhrChart);
+
+            QFont textFont;
+            textFont.setBold(true);
+            textFont.setFamily("Microsoft YaHei");
+            testText->setFont(textFont);
+            testText->setDefaultTextColor("#265580");
+            int chartX = i;
+            int chartY = 90+j*30;
+            testText->setPlainText(QString("%1").arg(chartY));
+            testText->setPos(QPointF(fhrChartView->chartPos2ViewPos(QPoint(chartX,chartY+7))));
+        }
+    }
 }
 
 void MainWindow::on_recordsListView_clicked(const QModelIndex &index)
